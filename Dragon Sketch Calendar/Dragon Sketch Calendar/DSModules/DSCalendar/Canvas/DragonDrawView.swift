@@ -9,6 +9,10 @@ import SwiftUI
 
 struct DragonDrawView: View {
     @Environment(\.dismiss) private var dismiss
+    @Binding var path: [AppRoute]
+    
+    let element: Elements
+    let emotion: Emotion
     
     @State private var strokes: [DrawingStroke] = []
     @State private var currentPoints: [CGPoint] = []
@@ -17,7 +21,7 @@ struct DragonDrawView: View {
     @State private var brushWidth: CGFloat = 6
     @State private var eraserWidth: CGFloat = 22
     
-    private let drawingColor = Color(red: 0.45, green: 1.0, blue: 0.65)
+    @State private var dragon: Dragon?
     
     var body: some View {
         ZStack {
@@ -71,7 +75,7 @@ struct DragonDrawView: View {
             Spacer()
             
             Button {
-                // Здесь можно сохранить рисунок или закрыть экран
+                path.removeAll()
             } label: {
                 Text("Complete")
                     .font(.system(size: 13, weight: .bold))
@@ -87,23 +91,61 @@ struct DragonDrawView: View {
     }
     
     private var thumbnailsRow: some View {
-        HStack(spacing: 10) {
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(Color(hex: "#D6A300"), lineWidth: 1)
-                .frame(width: 50, height: 50)
-            
-            ForEach(0..<5, id: \.self) { _ in
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(Color.black.opacity(0.28))
-                    .frame(width: 50, height: 50)
-                    .overlay(
-                        Image(systemName: "scribble")
-                            .font(.system(size: 22))
-                            .foregroundColor(.white.opacity(0.9))
-                    )
+        ScrollView(.horizontal) {
+            HStack(spacing: 10) {
+                Button {
+                    self.dragon = nil
+                } label: {
+                    Image("dragon1IconDS")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 55)
+                        .opacity(0)
+                        .padding()
+                        .frame(width: 70)
+                        .background {
+                            Color.black.opacity(0.28)
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .overlay {
+                            if self.dragon == nil {
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(lineWidth: 1)
+                                    .foregroundStyle(.appYellow)
+                            }
+                        }
+                }
+                
+                
+                HStack {
+                    ForEach(Dragon.allCases, id: \.self) { daragon in
+                        Button {
+                            self.dragon = daragon
+                        } label: {
+                            Image(daragon.icon)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(height: 55)
+                                .padding()
+                                .frame(width: 70)
+                                .background {
+                                    Color.black.opacity(0.28)
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 8))
+                                .overlay {
+                                    if self.dragon == daragon {
+                                        RoundedRectangle(cornerRadius: 8)
+                                            .stroke(lineWidth: 1)
+                                            .foregroundStyle(.appYellow)
+                                    }
+                                }
+                        }
+                    }
+                }
+                
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
     }
     
     private var drawingArea: some View {
@@ -111,6 +153,14 @@ struct DragonDrawView: View {
             ZStack {
                 RoundedRectangle(cornerRadius: 24)
                     .fill(Color.clear)
+                
+                if let dragon {
+                    Image(dragon.image)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 390)
+                        .opacity(0.5)
+                }
                 
                 Canvas { context, size in
                     let allStrokes = strokes + currentStroke
@@ -160,7 +210,7 @@ struct DragonDrawView: View {
                         
                         let newStroke = DrawingStroke(
                             points: points,
-                            color: drawingColor,
+                            color: element.color,
                             lineWidth: activeLineWidth,
                             tool: selectedTool
                         )
@@ -256,7 +306,7 @@ struct DragonDrawView: View {
         return [
             DrawingStroke(
                 points: currentPoints,
-                color: drawingColor,
+                color: element.color,
                 lineWidth: activeLineWidth,
                 tool: selectedTool
             )
@@ -325,5 +375,5 @@ struct DrawingStroke: Identifiable {
 
 
 #Preview {
-    DragonDrawView()
+    DragonDrawView(path: .constant([]), element: .wood, emotion: .one)
 }

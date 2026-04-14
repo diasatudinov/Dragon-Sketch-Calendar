@@ -82,7 +82,7 @@ enum Emotion: String, Codable, CaseIterable, Hashable {
         case .three:
             "😐"
         case .four:
-            "😠 "
+            "😠"
         case .five:
             "😢"
         case .six:
@@ -91,6 +91,40 @@ enum Emotion: String, Codable, CaseIterable, Hashable {
             "😴"
         case .eight:
             "🤩"
+        }
+    }
+}
+
+enum Dragon: String, Codable, CaseIterable, Hashable {
+    case one, two, three, four, five
+    
+    var image: String {
+        switch self {
+        case .one:
+            "dragon1DS"
+        case .two:
+            "dragon2DS"
+        case .three:
+            "dragon3DS"
+        case .four:
+            "dragon4DS"
+        case .five:
+            "dragon5DS"
+        }
+    }
+    
+    var icon: String {
+        switch self {
+        case .one:
+            "dragon1IconDS"
+        case .two:
+            "dragon2IconDS"
+        case .three:
+            "dragon3IconDS"
+        case .four:
+            "dragon4IconDS"
+        case .five:
+            "dragon5IconDS"
         }
     }
 }

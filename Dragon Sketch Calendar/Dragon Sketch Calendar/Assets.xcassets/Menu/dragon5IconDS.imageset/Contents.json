@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "dragon5IconDS.png",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

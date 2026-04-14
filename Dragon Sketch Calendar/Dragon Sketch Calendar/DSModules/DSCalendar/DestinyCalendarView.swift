@@ -6,45 +6,42 @@
 
 import SwiftUI
 
-struct DSCalendarView: View {
-    var body: some View {
-        VStack {
-            ScrollView(showsIndicators: false) {
-                
-            }
-        }
-        .background(.tab.opacity(0.95))
-    }
+enum AppRoute: Hashable {
+    case preparation
+    case draw(Emotion, Elements)
 }
 
 struct DestinyCalendarView: View {
     @StateObject private var viewModel = DestinyCalendarViewModel()
+    @Binding var path: [AppRoute]
     
     var body: some View {
-        ZStack {
-            Color.tab.opacity(0.95)
-                .ignoresSafeArea()
-            
-            VStack(alignment: .leading, spacing: 0) {
-                headerView
+            ZStack {
+                Color.tab.opacity(0.95)
+                    .ignoresSafeArea()
                 
-                Spacer().frame(height: 56)
-                
-                monthSwitcher
-                
-                Spacer().frame(height: 22)
-                
-                weekDaysHeader
-                
-                Spacer().frame(height: 10)
-                
-                calendarGrid
-                
-                Spacer()
+                VStack(alignment: .leading, spacing: 0) {
+                    headerView
+                    
+                    Spacer().frame(height: 56)
+                    
+                    monthSwitcher
+                    
+                    Spacer().frame(height: 22)
+                    
+                    weekDaysHeader
+                    
+                    Spacer().frame(height: 10)
+                    
+                    calendarGrid
+                    
+                    Spacer()
+                }
+                .padding(.horizontal, 22)
+                .padding(.top, 22)
             }
-            .padding(.horizontal, 22)
-            .padding(.top, 22)
-        }
+            
+        
     }
     
     private var headerView: some View {
@@ -118,11 +115,17 @@ struct DestinyCalendarView: View {
         
         return LazyVGrid(columns: columns, spacing: 10) {
             ForEach(viewModel.days) { day in
-                DayCellView(
-                    day: day,
-                    state: viewModel.state(for: day.date),
-                    isCurrentMonth: day.isCurrentMonth
-                )
+                Button {
+                    if viewModel.state(for: day.date) == .today {
+                        path.append(.preparation)
+                    }
+                } label: {
+                    DayCellView(
+                        day: day,
+                        state: viewModel.state(for: day.date),
+                        isCurrentMonth: day.isCurrentMonth
+                    )
+                }
             }
         }
         .frame(maxWidth: .infinity)
@@ -153,21 +156,19 @@ private struct DayCellView: View {
     private var cellContent: some View {
         switch state {
         case .today:
-            NavigationLink {
-                EmptyView()
-            } label: {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 9)
-                        .fill(Color(hex: "#A11311"))
-                    
-                    RoundedRectangle(cornerRadius: 9)
-                        .stroke(.white.opacity(0.9), lineWidth: 1.2)
-                    
-                    Text("Draw")
-                        .font(.system(size: 9, weight: .semibold))
-                        .foregroundColor(.white)
-                }
+           
+            ZStack {
+                RoundedRectangle(cornerRadius: 9)
+                    .fill(Color(hex: "#A11311"))
+                
+                RoundedRectangle(cornerRadius: 9)
+                    .stroke(.white.opacity(0.9), lineWidth: 1.2)
+                
+                Text("Draw")
+                    .font(.system(size: 9, weight: .semibold))
+                    .foregroundColor(.white)
             }
+            
             
         case .drawn:
             ZStack {
@@ -200,6 +201,6 @@ private struct DayCellView: View {
 
 #Preview {
     NavigationStack {
-        DestinyCalendarView()
+        DestinyCalendarView(path: .constant([]))
     }
 }

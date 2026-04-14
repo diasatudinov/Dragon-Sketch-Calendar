@@ -8,7 +8,8 @@ import SwiftUI
 
 struct DSPreparationView: View {
     @Environment(\.presentationMode) var presentationMode
-
+    @Binding var path: [AppRoute]
+    
     var monthTitle: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -24,7 +25,7 @@ struct DSPreparationView: View {
     ]
     
     @State private var emotion: Emotion = .one
-    @State private var element: Elements? = .water
+    @State private var element: Elements?
     @State private var description: String = ""
     
     var body: some View {
@@ -190,7 +191,8 @@ struct DSPreparationView: View {
                         .clipShape(RoundedRectangle(cornerRadius: 20))
                         .padding(.top, 24)
                         
-                        NavigationLink {
+                        Button {
+                            path.append(.draw(emotion, element))
                             
                         } label: {
                             Text("Start Drawing")
@@ -215,5 +217,5 @@ struct DSPreparationView: View {
 }
 
 #Preview {
-    DSPreparationView()
+    DSPreparationView(path: .constant([]))
 }

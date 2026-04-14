@@ -22,28 +22,42 @@ struct DSMenuView: View {
     //    @StateObject var viewModel = BSProfileViewModel()
     @State var selectedTab = 0
     private let tabs = ["Calendar", "Archive", "Analytics"]
+    @State private var path: [AppRoute] = []
     
     var body: some View {
-        ZStack(alignment: .bottom) {
-            
-            TabView(selection: $selectedTab) {
-                DSCalendarView()
-                    .tag(0)
+        NavigationStack(path: $path) {
+            ZStack(alignment: .bottom) {
                 
-                Color.cyan
-                    .tag(1)
+                TabView(selection: $selectedTab) {
+                    DestinyCalendarView(path: $path)
+                        .tag(0)
+                    
+                    Color.cyan
+                        .tag(1)
+                    
+                    Color.blue
+                        .tag(2)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
                 
-                Color.blue
-                    .tag(2)
+                customTabBar
             }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            
-            customTabBar
+            .background(
+                .tab.opacity(0.95)
+            )
+            .ignoresSafeArea(edges: .bottom)
+            .navigationDestination(for: AppRoute.self) { route in
+                switch route {
+                case .preparation:
+                    DSPreparationView(path: $path)
+                        .navigationBarBackButtonHidden()
+                    
+                case .draw(let emotion, let element):
+                    DragonDrawView(path: $path, element: element, emotion: emotion)
+                        .navigationBarBackButtonHidden()
+                }
+            }
         }
-        .background(
-            .tab.opacity(0.95)
-        )
-        .ignoresSafeArea(edges: .bottom)
     }
     
     private var customTabBar: some View {
@@ -95,5 +109,5 @@ struct DSMenuView: View {
 }
 
 #Preview {
-    DSMenuView()
+    BSMenuContainer()
 }
