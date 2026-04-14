@@ -1,3 +1,11 @@
+//
+//  CalendarDayItem.swift
+//  Dragon Sketch Calendar
+//
+//
+
+import SwiftUI
+
 // MARK: - Models
 
 struct CalendarDayItem: Identifiable {
@@ -21,14 +29,13 @@ enum DayCellState {
 }
 
 // MARK: - Helpers
-
-private extension Calendar {
+extension Calendar {
     func startOfMonth(for date: Date) -> Date {
-        date(from: dateComponents([.year, .month], from: date)) ?? date
+        self.date(from: self.dateComponents([.year, .month], from: date)) ?? date
     }
 }
 
-private extension Color {
+extension Color {
     init(hex: String) {
         let hex = hex.trimmingCharacters(in: CharacterSet.alphanumerics.inverted)
         var int: UInt64 = 0

@@ -1,3 +1,11 @@
+//
+//  DestinyCalendarViewModel.swift
+//  Dragon Sketch Calendar
+//
+//
+
+import SwiftUI
+
 // MARK: - ViewModel
 
 final class DestinyCalendarViewModel: ObservableObject {
@@ -16,15 +24,6 @@ final class DestinyCalendarViewModel: ObservableObject {
         
         // Пример моковых нарисованных дней
         let today = calendar.startOfDay(for: Date())
-        self.drawnDates = [
-            calendar.date(byAdding: .day, value: -1, to: today),
-            calendar.date(byAdding: .day, value: -3, to: today),
-            calendar.date(byAdding: .day, value: -6, to: today),
-            calendar.date(byAdding: .day, value: -8, to: today)
-        ]
-        .compactMap { $0 }
-        .map { calendar.startOfDay(for: $0) }
-        .reduce(into: Set<Date>()) { $0.insert($1) }
     }
     
     var weekdaySymbols: [String] {
@@ -73,11 +72,6 @@ final class DestinyCalendarViewModel: ObservableObject {
         } else {
             return .future
         }
-    }
-    
-    func drawToday() {
-        let today = calendar.startOfDay(for: Date())
-        drawnDates.insert(today)
     }
     
     func showPreviousMonth() {
