@@ -8,11 +8,11 @@ import SwiftUI
 
 enum AppRoute: Hashable {
     case preparation
-    case draw(Emotion, Elements)
+    case draw(Emotion, Elements, String)
 }
 
 struct DestinyCalendarView: View {
-    @StateObject private var viewModel = DestinyCalendarViewModel()
+    @ObservedObject var viewModel: DestinyCalendarViewModel
     @Binding var path: [AppRoute]
     
     var body: some View {
@@ -201,6 +201,6 @@ private struct DayCellView: View {
 
 #Preview {
     NavigationStack {
-        DestinyCalendarView(path: .constant([]))
+        DestinyCalendarView(viewModel: DestinyCalendarViewModel(), path: .constant([]))
     }
 }

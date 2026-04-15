@@ -12,13 +12,15 @@ struct Draw: Codable, Identifiable, Hashable {
     var date: Date
     var emotion: Emotion
     var element: Elements
+    var description: String
     
-    init(id: UUID = UUID(), imageData: Data? = nil, date: Date, emotion: Emotion, element: Elements) {
+    init(id: UUID = UUID(), imageData: Data? = nil, date: Date, emotion: Emotion, element: Elements, description: String) {
         self.id = id
         self.imageData = imageData
         self.date = date
         self.emotion = emotion
         self.element = element
+        self.description = description
     }
 }
 

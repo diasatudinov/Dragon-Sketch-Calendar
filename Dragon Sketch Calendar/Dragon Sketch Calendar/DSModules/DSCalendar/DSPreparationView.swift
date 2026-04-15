@@ -8,6 +8,7 @@ import SwiftUI
 
 struct DSPreparationView: View {
     @Environment(\.presentationMode) var presentationMode
+    @ObservedObject var viewModel: DestinyCalendarViewModel
     @Binding var path: [AppRoute]
     
     var monthTitle: String {
@@ -192,7 +193,7 @@ struct DSPreparationView: View {
                         .padding(.top, 24)
                         
                         Button {
-                            path.append(.draw(emotion, element))
+                            path.append(.draw(emotion, element, description))
                             
                         } label: {
                             Text("Start Drawing")
@@ -217,5 +218,5 @@ struct DSPreparationView: View {
 }
 
 #Preview {
-    DSPreparationView(path: .constant([]))
+    DSPreparationView(viewModel: DestinyCalendarViewModel(), path: .constant([]))
 }

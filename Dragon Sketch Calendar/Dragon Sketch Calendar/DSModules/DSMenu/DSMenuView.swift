@@ -19,7 +19,7 @@ struct BSMenuContainer: View {
 }
 
 struct DSMenuView: View {
-    //    @StateObject var viewModel = BSProfileViewModel()
+    @StateObject private var viewModel = DestinyCalendarViewModel()
     @State var selectedTab = 0
     private let tabs = ["Calendar", "Archive", "Analytics"]
     @State private var path: [AppRoute] = []
@@ -29,10 +29,10 @@ struct DSMenuView: View {
             ZStack(alignment: .bottom) {
                 
                 TabView(selection: $selectedTab) {
-                    DestinyCalendarView(path: $path)
+                    DestinyCalendarView(viewModel: viewModel, path: $path)
                         .tag(0)
                     
-                    Color.cyan
+                    DSArchiveView(viewModel: viewModel)
                         .tag(1)
                     
                     Color.blue
@@ -49,11 +49,11 @@ struct DSMenuView: View {
             .navigationDestination(for: AppRoute.self) { route in
                 switch route {
                 case .preparation:
-                    DSPreparationView(path: $path)
+                    DSPreparationView(viewModel: viewModel, path: $path)
                         .navigationBarBackButtonHidden()
                     
-                case .draw(let emotion, let element):
-                    DragonDrawView(path: $path, element: element, emotion: emotion)
+                case .draw(let emotion, let element, let description):
+                    DragonDrawView(viewModel: viewModel, path: $path, element: element, emotion: emotion, description: description)
                         .navigationBarBackButtonHidden()
                 }
             }

@@ -9,10 +9,13 @@ import SwiftUI
 
 struct DragonDrawView: View {
     @Environment(\.dismiss) private var dismiss
+    
+    @ObservedObject var viewModel: DestinyCalendarViewModel
     @Binding var path: [AppRoute]
     
     let element: Elements
     let emotion: Emotion
+    let description: String
     
     @State private var strokes: [DrawingStroke] = []
     @State private var currentPoints: [CGPoint] = []
@@ -22,6 +25,7 @@ struct DragonDrawView: View {
     @State private var eraserWidth: CGFloat = 22
     
     @State private var dragon: Dragon?
+    @State private var canvasSize: CGSize = .zero
     
     var body: some View {
         ZStack {
@@ -75,6 +79,15 @@ struct DragonDrawView: View {
             Spacer()
             
             Button {
+                //Calendar.current.date(byAdding: .day, value: -1, to: Date.now)
+                var draw = Draw(date: Date.now, emotion: emotion, element: element, description: description)
+                let image = makeImage(
+                    size: canvasSize,
+                    strokes: strokes,
+                    currentStroke: currentStroke
+                )
+                draw.setImage(image)
+                viewModel.add(draw: draw)
                 path.removeAll()
             } label: {
                 Text("Complete")
@@ -219,6 +232,12 @@ struct DragonDrawView: View {
                         currentPoints.removeAll()
                     }
             )
+            .onAppear {
+                canvasSize = geometry.size
+            }
+            .onChange(of: geometry.size) { newSize in
+                canvasSize = newSize
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -358,6 +377,94 @@ struct DragonDrawView: View {
         
         return path
     }
+    
+    func makeImage(
+        size: CGSize,
+        strokes: [DrawingStroke],
+        currentStroke: [DrawingStroke] = [],
+        backgroundColor: UIColor = .clear
+    ) -> UIImage {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = UIScreen.main.scale
+        format.opaque = backgroundColor != .clear
+        
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+        
+        return renderer.image { rendererContext in
+            let cgContext = rendererContext.cgContext
+            
+            if backgroundColor != .clear {
+                cgContext.setFillColor(backgroundColor.cgColor)
+                cgContext.fill(CGRect(origin: .zero, size: size))
+            }
+            
+            let allStrokes = strokes + currentStroke
+            
+            for stroke in allStrokes {
+                let bezierPath = makeBezierPath(from: stroke.points, lineWidth: stroke.lineWidth)
+                
+                cgContext.addPath(bezierPath.cgPath)
+                cgContext.setLineWidth(stroke.lineWidth)
+                cgContext.setLineCap(.round)
+                cgContext.setLineJoin(.round)
+                
+                if stroke.tool == .eraser {
+                    cgContext.setBlendMode(.clear)
+                    cgContext.setStrokeColor(UIColor.clear.cgColor)
+                } else {
+                    cgContext.setBlendMode(.normal)
+                    cgContext.setStrokeColor(UIColor(stroke.color).cgColor)
+                }
+                
+                cgContext.strokePath()
+            }
+        }
+    }
+    
+    func makeBezierPath(from points: [CGPoint], lineWidth: CGFloat) -> UIBezierPath {
+        let path = UIBezierPath()
+        
+        guard let first = points.first else { return path }
+        
+        if points.count == 1 {
+            let dotRect = CGRect(
+                x: first.x - lineWidth / 2,
+                y: first.y - lineWidth / 2,
+                width: lineWidth,
+                height: lineWidth
+            )
+            path.append(UIBezierPath(ovalIn: dotRect))
+            return path
+        }
+        
+        path.move(to: first)
+        
+        if points.count == 2 {
+            path.addLine(to: points[1])
+            return path
+        }
+        
+        for index in 1..<points.count {
+            let previous = points[index - 1]
+            let current = points[index]
+            let midPoint = CGPoint(
+                x: (previous.x + current.x) / 2,
+                y: (previous.y + current.y) / 2
+            )
+            
+            if index == 1 {
+                path.addLine(to: midPoint)
+            } else {
+                path.addQuadCurve(to: midPoint, controlPoint: previous)
+            }
+            
+            if index == points.count - 1 {
+                path.addQuadCurve(to: current, controlPoint: current)
+            }
+        }
+        
+        return path
+    }
 }
 
 enum DrawingTool {
@@ -375,5 +482,5 @@ struct DrawingStroke: Identifiable {
 
 
 #Preview {
-    DragonDrawView(path: .constant([]), element: .wood, emotion: .one)
+    DragonDrawView(viewModel: DestinyCalendarViewModel(), path: .constant([]), element: .water, emotion: .one, description: "")
 }
